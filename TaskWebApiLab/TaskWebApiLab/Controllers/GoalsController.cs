@@ -9,7 +9,9 @@ using Data.Models;
 using Microsoft.AspNetCore.Authorization;
 using TaskWebApiLab.ApiModels;
 using TaskWebApiLab.Auth;
-using Microsoft.AspNet.Identity;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
 
 namespace TaskWebApiLab.Controllers
 {
@@ -19,10 +21,12 @@ namespace TaskWebApiLab.Controllers
     public class GoalsController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<IdentityUser> _userManager;
 
-        public GoalsController(ApplicationDbContext context)
+        public GoalsController(ApplicationDbContext context, UserManager<IdentityUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: api/Goals
@@ -44,6 +48,20 @@ namespace TaskWebApiLab.Controllers
             }
 
             return goal;
+        }
+        
+        // GET: api/Goals/5
+        [HttpGet("child-goals/{id}")]
+        public async Task<ActionResult<IEnumerable<Goal>>> GetChildGoals(int id)
+        {
+            var childGoals = await _context.Goals.Where(x => x.ParentTaskId == id).ToListAsync();
+
+            if (childGoals.IsNullOrEmpty())
+            {
+                return NotFound();
+            }
+
+            return childGoals;
         }
 
         // PUT: api/Goals/5
@@ -82,17 +100,19 @@ namespace TaskWebApiLab.Controllers
         [HttpPost]
         public async Task<ActionResult<GoalModel>> PostGoal([FromBody]GoalModel goal)
         {
+            var user = await _userManager.FindByNameAsync(User.Identity.Name);
+            var userId = user.Id;
+            //var user = await _context.Users.Where(x => x.UserName == User.Identity.Name).SingleAsync();
 
             var goalData = new Goal
             {
-                Id = 1,
                 CategoryId = goal.CategoryId,
                 CreatedAt = DateTime.Now,
                 Description = goal.Description,
                 ParentTaskId = goal.ParentTaskId ?? 0,
-                //Status = goal.Status,
+                Status = goal.Status,
                 Title = goal.Title,
-                UserId = User.Identity.GetUserId()
+                UserId = userId
             };
             _context.Goals.Add(goalData);
             await _context.SaveChangesAsync();

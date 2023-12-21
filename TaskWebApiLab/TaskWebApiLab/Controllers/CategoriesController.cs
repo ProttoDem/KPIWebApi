@@ -84,7 +84,6 @@ namespace TaskWebApiLab.Controllers
         {
             var CategoryData = new Category
             {
-                Id = 1,
                 Description = category.Description,
                 Goals = new List<Goal>(),
                 Title = category.Title
