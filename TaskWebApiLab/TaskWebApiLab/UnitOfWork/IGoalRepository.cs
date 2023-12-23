@@ -11,7 +11,8 @@ namespace TaskWebApiLab.UnitOfWork
         Goal GetGoalByID(int goalId);
         void InsertGoal(Goal goal);
         void DeleteGoal(int goalId);
-        void UpdateGoal(Goal goal);
+        void UpdateGoal(int id, Goal goal);
+        void SetCurrentUser(string userId);
         void Save();
     }
 }

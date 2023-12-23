@@ -1,64 +1,79 @@
 ﻿using Data.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Specifications;
 using TaskWebApiLab.Auth;
+using Microsoft.AspNetCore.Authorization;
 
 namespace TaskWebApiLab.UnitOfWork
 {
     public class GoalRepository : IGoalRepository, IDisposable
     {
-        private ApplicationDbContext context;
+        private ApplicationDbContext _context;
+        private string UserId;
 
         public GoalRepository(ApplicationDbContext context)
         {
-            this.context = context;
+            this._context = context;
         }
 
         public Task<List<Goal>> GetGoals()
         {
-            return context.Goals.ToListAsync();
+            return _context.Goals.Where( x => x.UserId == UserId).ToListAsync();
         }
 
         public Task<List<Goal>> GetChildGoals(int goalId)
         {
-            return context.Goals.Where(x => x.ParentTaskId == goalId).ToListAsync();
+            return _context.Goals.Where(x => x.UserId == UserId && x.ParentTaskId == goalId).ToListAsync();
         }
 
         public IEnumerable<Goal> GetGoals(ExpressionSpecification<Goal> expressionSpecification)
         {
-            var users = context.Goals
+            var goals = _context.Goals
                     .Where(expressionSpecification.Expression)
                     .TagWith("User Repository Fetch User according to Specification")
                     .ToList();
 
-            return users;
+            return goals;
         }
 
         public Goal GetGoalByID(int id)
         {
-            return context.Goals.Find(id);
+            var goal = _context.Goals.Find(id);
+            if (goal.UserId == UserId)
+            {
+                return goal;
+            }
+            return null;
         }
 
         public void InsertGoal(Goal goal)
         {
-            context.Goals.Add(goal);
+            _context.Goals.Add(goal);
         }
 
         public void DeleteGoal(int goalId)
         {
-            Goal goal = context.Goals.Find(goalId);
-            context.Goals.Remove(goal);
+            Goal goal = _context.Goals.Find(goalId);
+            if (goal != null && goal.UserId == UserId)
+            {
+                _context.Goals.Remove(goal);
+            }
         }
 
-        public void UpdateGoal(Goal goal)
+        public void UpdateGoal(int id, Goal goal)
         {
-            context.Entry(goal).State = EntityState.Modified;
+            var goalData = _context.Goals.Find(id);
+            if (goalData != null && goalData.UserId == UserId)
+            {
+                _context.Entry(goal).State = EntityState.Modified;
+            }
         }
 
         public void Save()
         {
-            context.SaveChanges();
+            _context.SaveChanges();
         }
 
         private bool disposed = false;
@@ -69,7 +84,7 @@ namespace TaskWebApiLab.UnitOfWork
             {
                 if (disposing)
                 {
-                    context.Dispose();
+                    _context.Dispose();
                 }
             }
             this.disposed = true;
@@ -79,6 +94,11 @@ namespace TaskWebApiLab.UnitOfWork
         {
             Dispose(true);
             GC.SuppressFinalize(this);
+        }
+
+        public void SetCurrentUser(string userId)
+        {
+            this.UserId = userId;
         }
     }
 }
