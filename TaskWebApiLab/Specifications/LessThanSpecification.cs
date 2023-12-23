@@ -9,7 +9,7 @@ namespace Specifications
 {
     public class LessThanSpecification : ExpressionSpecification<Goal>
     {
-        public LessThanSpecification(Status threshold) : base(u => u.Status < threshold)
+        public LessThanSpecification(Status threshold) : base(u => u.Status <= threshold)
         {
         }
         

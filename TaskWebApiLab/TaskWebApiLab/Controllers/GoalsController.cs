@@ -1,15 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Data.Models;
 using Microsoft.AspNetCore.Authorization;
 using TaskWebApiLab.ApiModels;
-using TaskWebApiLab.Auth;
-using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using Specifications;
@@ -32,19 +25,29 @@ namespace TaskWebApiLab.Controllers
             //_context = context;
             this._goalRepository = goalRepository;
             _userManager = userManager;
+            //SetUser();
         }
 
         // GET: api/Goals
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Goal>>> GetGoals()
+        public async Task<ActionResult<IEnumerable<GoalModel>>> GetGoals()
         {
-            return await _goalRepository.GetGoals();
+            await SetUser();
+            List<Goal> goals = await _goalRepository.GetGoals();
+            
+            if (!goals.Any())
+            {
+                return StatusCode((int)HttpStatusCode.NotFound);
+            }
+
+            return StatusCode((int)HttpStatusCode.OK, new { totalCount = goals.Count, goals });
         }
-        
-        // GET: api/Goals
+
+        // GET: api/Goals/goals-by-status
         [HttpGet("goals-by-status")]
         public async Task<ActionResult<IEnumerable<Goal>>> GetGoalsSortByStatus([FromQuery]Status? minimumStatus, [FromQuery] Status? maximumStatus)
         {
+            await SetUser();
             ExpressionSpecification<Goal> specification = null;
 
             if (maximumStatus.HasValue)
@@ -68,11 +71,78 @@ namespace TaskWebApiLab.Controllers
 
             return StatusCode((int)HttpStatusCode.OK, new { totalCount = goals.Count, goals });
         }
+        
+        // GET: api/Goals/goals-by-status
+        [HttpGet("goals-by-status-category")]
+        public async Task<ActionResult<IEnumerable<Goal>>> GetGoalsSortByStatusCategory([FromQuery]Status? minimumStatus, [FromQuery] Status? maximumStatus, [FromQuery]int? categoryId)
+        {
+            await SetUser();
+            ExpressionSpecification<Goal> specification = null;
+
+            if (maximumStatus.HasValue)
+            {
+
+                specification = new LessThanSpecification(maximumStatus.Value);
+            }
+
+            if (minimumStatus.HasValue)
+            {
+                var biggerThanSpecification = new BiggerThanSpecification(minimumStatus.Value - 1);
+                specification = specification?.And(biggerThanSpecification) ?? biggerThanSpecification;
+            }
+            
+            if (categoryId.HasValue)
+            {
+                var inCategorySpecification = new InCategorySpecification(categoryId.Value + 1);
+                specification = specification?.And(inCategorySpecification) ?? inCategorySpecification;
+            }
+
+            List<Goal> goals = null;
+            if (specification != null)
+            {
+                goals = _goalRepository.GetGoals(specification).ToList();
+            }
+            else
+            {
+                goals = await _goalRepository.GetGoals();
+            }
+
+            if (!goals.Any())
+            {
+                return StatusCode((int)HttpStatusCode.NotFound);
+            }
+
+            return StatusCode((int)HttpStatusCode.OK, new { totalCount = goals.Count, goals });
+        }
+        
+        // GET: api/Goals/goals-by-status
+        [HttpGet("goals-by-category")]
+        public async Task<ActionResult<IEnumerable<GoalModel>>> GetGoalsSortByCategory([FromQuery]int? categoryId)
+        {
+            await SetUser();
+            ExpressionSpecification<Goal> specification = null;
+
+            if (categoryId.HasValue)
+            {
+
+                specification = new InCategorySpecification(categoryId.Value);
+            }
+
+            List<Goal> goals = _goalRepository.GetGoals(specification).ToList();
+
+            if (!goals.Any())
+            {
+                return StatusCode((int)HttpStatusCode.NotFound);
+            }
+
+            return StatusCode((int)HttpStatusCode.OK, new { totalCount = goals.Count, goals });
+        }
 
         // GET: api/Goals/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Goal>> GetGoal(int id)
         {
+            await SetUser();
             var goal = _goalRepository.GetGoalByID(id);
 
             if (goal == null)
@@ -87,6 +157,7 @@ namespace TaskWebApiLab.Controllers
         [HttpGet("child-goals/{id}")]
         public async Task<ActionResult<IEnumerable<Goal>>> GetChildGoals(int id)
         {
+            await SetUser();
             var childGoals = await _goalRepository.GetChildGoals(id);
 
             if (childGoals.IsNullOrEmpty())
@@ -102,11 +173,12 @@ namespace TaskWebApiLab.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutGoal(int id, Goal goal)
         {
+            await SetUser();
             if (id != goal.Id)
             {
                 return BadRequest();
             }
-            _goalRepository.UpdateGoal(goal);
+            _goalRepository.UpdateGoal(id, goal);
 
             try
             {
@@ -132,6 +204,7 @@ namespace TaskWebApiLab.Controllers
         [HttpPost]
         public async Task<ActionResult<GoalModel>> PostGoal([FromBody]GoalModel goal)
         {
+            await SetUser();
             var user = await _userManager.FindByNameAsync(User.Identity.Name);
             var userId = user.Id;
             //var user = await _context.Users.Where(x => x.UserName == User.Identity.Name).SingleAsync();
@@ -144,8 +217,10 @@ namespace TaskWebApiLab.Controllers
                 ParentTaskId = goal.ParentTaskId ?? 0,
                 Status = goal.Status,
                 Title = goal.Title,
+                DueTime = goal.DueTime,
                 UserId = userId
             };
+
             _goalRepository.InsertGoal(goalData);
             _goalRepository.Save();
 
@@ -156,6 +231,7 @@ namespace TaskWebApiLab.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteGoal(int id)
         {
+            await SetUser();
             var goal = _goalRepository.GetGoalByID(id);
             if (goal == null)
             {
@@ -175,6 +251,13 @@ namespace TaskWebApiLab.Controllers
                 return false;
             } 
             return true;
+        }
+
+        private async Task SetUser()
+        {
+            var user = await _userManager.FindByNameAsync(User.Identity.Name);
+            var userId = user.Id;
+            _goalRepository.SetCurrentUser(userId);
         }
     }
 }
