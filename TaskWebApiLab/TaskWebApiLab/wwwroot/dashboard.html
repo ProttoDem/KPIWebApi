@@ -1,0 +1,92 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+    <style>
+        /* Add some basic styling */
+        .top-right {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .goal {
+            border: 1px solid #ddd;
+            margin: 10px;
+            padding: 10px;
+            width: 80%;
+        }
+    </style>
+</head>
+<body>
+    <div class="top-right">
+        <span id="usernameDisplay">Username</span>
+        <button onclick="window.location.href='search.html'">Search Goals</button>
+
+        <button onclick="logout()">Log Out</button>
+    </div>
+    <div class="container">
+        <h1>Your Goals</h1>
+        <div id="goalsContainer">
+            <!-- Goals will be displayed here -->
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>Add New Goal</h2>
+        <form id="addGoalForm">
+            <label for="categoryId">Category ID:</label>
+            <input type="number" id="categoryId" name="categoryId" required><br>
+
+            <label for="parentTaskId">Parent Task ID:</label>
+            <input type="number" id="parentTaskId" name="parentTaskId"><br>
+
+            <label for="title">Title:</label>
+            <input type="text" id="title" name="title" required><br>
+
+            <label for="description">Description:</label>
+            <textarea id="description" name="description" required></textarea><br>
+
+            <label for="dueTime">Due Time:</label>
+            <input type="datetime-local" id="dueTime" name="dueTime"><br>
+
+            <label for="status">Status:</label>
+            <select id="status" name="status">
+                <option value="0">Not Started</option>
+                <option value="1">In Progress</option>
+                <option value="2">Completed</option>
+            </select><br>
+
+            <button type="button" onclick="submitNewGoal()">Add Goal</button>
+        </form>
+    </div>
+<!-- Existing dashboard content -->
+<!-- Notification Settings Form -->
+<div class="notification-settings">
+    <h2>Notification Settings</h2>
+    <label for="notifyBefore">Notify me about goals due in:</label>
+    <select id="notifyBefore">
+        <option value="1">1 hour</option>
+        <option value="12">12 hours</option>
+        <option value="24">24 hours</option>
+        <option value="72">72 hours</option>
+    </select>
+    <button onclick="updateNotificationSetting()">Update Notification</button>
+</div>
+
+<!-- Notification Area -->
+<div id="notificationArea">
+    <h2>Notifications</h2>
+    <!-- Notifications will be displayed here -->
+</div>
+    <script src="dashboard.js"></script>
+</body>
+</html>
