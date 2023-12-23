@@ -8,7 +8,7 @@ namespace TaskWebApiLab.ApiModels
         public int? ParentTaskId { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
-        public DateTime CreatedAt { get; set; }
+        public DateTime? DueTime { get; set; }
         public Status Status { get; set; } = Status.OnHold;
     }
 }
