@@ -1,0 +1,46 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Search Goals</title>
+    <!-- Add any additional styles or scripts you may need -->
+</head>
+<body>
+<h1>Search Goals</h1>
+<form id="searchForm">
+    <!-- Minimum Status Selector -->
+    <label for="minimumStatus">Minimum Status:</label>
+    <select id="minimumStatus" name="minimumStatus">
+        <option value="">Any</option>
+        <option value="0">Not Started</option>
+        <option value="1">In Progress</option>
+        <option value="2">Completed</option>
+    </select><br>
+
+    <!-- Maximum Status Selector -->
+    <label for="maximumStatus">Maximum Status:</label>
+    <select id="maximumStatus" name="maximumStatus">
+        <option value="">Any</option>
+        <option value="0">Not Started</option>
+        <option value="1">In Progress</option>
+        <option value="2">Completed</option>
+    </select><br>
+
+    <!-- Category Selector -->
+    <label for="category">Category:</label>
+    <select id="category" name="category">
+        <option value="">Any</option>
+        <!-- Categories will be populated here -->
+    </select><br>
+
+    <button type="button" onclick="searchGoals()">Search</button>
+</form>
+
+<h2>Results:</h2>
+<div id="results">
+    <!-- Search results will be displayed here -->
+</div>
+
+<script src="search.js"></script>
+</body>
+</html>

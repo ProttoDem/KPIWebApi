@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TaskWebApiLab.Auth;
 
@@ -11,9 +12,11 @@ using TaskWebApiLab.Auth;
 namespace TaskWebApiLab.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231221172934_TaskCategory")]
+    partial class TaskCategory
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -60,9 +63,6 @@ namespace TaskWebApiLab.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("DueTime")
-                        .HasColumnType("datetime2");
-
                     b.Property<int?>("ParentTaskId")
                         .HasColumnType("int");
 
@@ -81,7 +81,7 @@ namespace TaskWebApiLab.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("Goals");
+                    b.ToTable("Tasks");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
