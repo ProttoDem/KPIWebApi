@@ -9,6 +9,7 @@ using Data.Models;
 using Microsoft.AspNetCore.Authorization;
 using TaskWebApiLab.ApiModels;
 using TaskWebApiLab.Auth;
+using TaskWebApiLab.UnitOfWork;
 
 namespace TaskWebApiLab.Controllers
 {
@@ -17,26 +18,31 @@ namespace TaskWebApiLab.Controllers
     [ApiController]
     public class CategoriesController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
+        //private readonly ApplicationDbContext _context;
+        private readonly ICategoryRepository _categoryRepository;
 
-        public CategoriesController(ApplicationDbContext context)
+        public CategoriesController(ICategoryRepository categoryRepository)
         {
-            _context = context;
+           // _context = context;
+           // _categoryRepository = categoryRepository;
+            //this._categoryRepository = new CategoryRepository(context);
+            this._categoryRepository = categoryRepository;
         }
 
+        
         // GET: api/Categories
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Category>>> GetCategories()
         {
 
-            return await _context.Categories.ToListAsync();
+            return await _categoryRepository.GetCategories();
         }
 
         // GET: api/Categories/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Category>> GetCategory(int id)
         {
-            var category = await _context.Categories.FindAsync(id);
+            var category = _categoryRepository.GetCategoryByID(id);
 
             if (category == null)
             {
@@ -45,7 +51,7 @@ namespace TaskWebApiLab.Controllers
 
             return category;
         }
-
+        /*
         // PUT: api/Categories/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
@@ -75,7 +81,7 @@ namespace TaskWebApiLab.Controllers
             }
 
             return NoContent();
-        }
+        }*/
 
         // POST: api/Categories
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
@@ -88,13 +94,15 @@ namespace TaskWebApiLab.Controllers
                 Goals = new List<Goal>(),
                 Title = category.Title
             };
-            _context.Categories.Add(CategoryData);
-            await _context.SaveChangesAsync();
+            _categoryRepository.InsertCategory(CategoryData);
+            //_context.Categories.Add(CategoryData);
+            //await _context.SaveChangesAsync();
+            _categoryRepository.Save();
 
             return CreatedAtAction("GetCategory", new { id = CategoryData.Id }, category);
         }
 
-        // DELETE: api/Categories/5
+        /*// DELETE: api/Categories/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCategory(int id)
         {
@@ -113,6 +121,6 @@ namespace TaskWebApiLab.Controllers
         private bool CategoryExists(int id)
         {
             return _context.Categories.Any(e => e.Id == id);
-        }
+        }*/
     }
 }

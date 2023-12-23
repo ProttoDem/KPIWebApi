@@ -21,8 +21,8 @@ namespace Data.Models
 
     public enum Status
     {
-        OnHold,
-        InProgress,
-        Done
+        OnHold = 0,
+        InProgress = 1,
+        Done = 2
     }
 }

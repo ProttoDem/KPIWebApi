@@ -3,7 +3,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Data.Models;
 using TaskWebApiLab.Auth;
+using TaskWebApiLab.UnitOfWork;
 
 var builder = WebApplication.CreateBuilder(args);
 ConfigurationManager configuration = builder.Configuration;
@@ -18,6 +20,10 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddUserManager<UserManager<IdentityUser>>()
     .AddDefaultTokenProviders();
+
+builder.Services.AddScoped(typeof(ICategoryRepository), typeof(CategoryRepository));
+builder.Services.AddScoped(typeof(IGoalRepository), typeof(GoalRepository));
+
 
 // Adding Authentication
 builder.Services.AddAuthentication(options =>
