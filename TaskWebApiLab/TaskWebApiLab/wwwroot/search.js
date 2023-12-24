@@ -126,10 +126,3 @@ function populateCategoryDropdown(categories) {
 document.addEventListener('DOMContentLoaded', () => {
     fetchCategories();
 });
-
-
-// Existing code in search.js
-document.addEventListener('DOMContentLoaded', () => {
-    fetchCategories();
-    // Any other initialization code can go here
-});
