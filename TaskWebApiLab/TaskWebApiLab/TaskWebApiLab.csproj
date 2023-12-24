@@ -26,8 +26,5 @@
     <ProjectReference Include="..\Specifications\Specifications.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Pages\Notifications\" />
-  </ItemGroup>
 
 </Project>

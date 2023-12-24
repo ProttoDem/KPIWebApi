@@ -24,6 +24,7 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>()
 
 builder.Services.AddScoped(typeof(ICategoryRepository), typeof(CategoryRepository));
 builder.Services.AddScoped(typeof(IGoalRepository), typeof(GoalRepository));
+builder.Services.AddHttpContextAccessor();
 
 
 // Adding Authentication
@@ -102,3 +103,4 @@ app.MapControllers();
 app.UseStaticFiles();
 
 app.Run();
+public partial class Program { }
