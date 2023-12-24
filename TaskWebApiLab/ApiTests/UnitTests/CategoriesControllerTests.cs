@@ -23,7 +23,13 @@ public class CategoriesControllerTests
     public async Task GetCategories_ReturnsAllCategories()
     {
         // Arrange
-        var fakeCategories = new List<Category> { /* populate with test categories */ };
+        var fakeCategories = new List<Category> { new Category
+            {
+                Id = 999,
+                Title = "TestCategory",
+                Description = "null"
+            }
+        };
         _mockRepo.Setup(repo => repo.GetCategories()).ReturnsAsync(fakeCategories);
 
         // Act
@@ -53,7 +59,7 @@ public class CategoriesControllerTests
     public async Task GetCategory_ReturnsCategory_WhenCategoryExists()
     {
         // Arrange
-        int testCategoryId = 1;
+        int testCategoryId = 999;
         var testCategory = new Category { Id = testCategoryId, Title = "Test", Description = "Test Description" };
         _mockRepo.Setup(repo => repo.GetCategoryByID(testCategoryId)).Returns(testCategory);
 

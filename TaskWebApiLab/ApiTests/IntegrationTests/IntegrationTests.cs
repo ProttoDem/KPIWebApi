@@ -43,7 +43,7 @@ public class GoalsControllerIntegrationTests : ApiFixture
         // Assert
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         var createdGoal = JsonConvert.DeserializeObject<Goal>(await response.Content.ReadAsStringAsync());
-        Assert.Equal(newGoal.Title, createdGoal.Title); // or other assertions as necessary
+        Assert.Equal(newGoal.Title, createdGoal.Title);
     }
 
     [Fact]
@@ -85,7 +85,7 @@ public class GoalsControllerIntegrationTests : ApiFixture
     public async Task GetChildGoals_ReturnsChildGoals_WhenTheyExist()
     {
         // Arrange
-        int parentGoalId = 0; // Assuming this goal exists and has child goals
+        int parentGoalId = 0;
 
         // Act
         var response = await ApiHttpClient.GetAsync($"/api/goals/child-goals/{parentGoalId}");
@@ -93,14 +93,14 @@ public class GoalsControllerIntegrationTests : ApiFixture
         // Assert
         response.EnsureSuccessStatusCode();
         var childGoals = JsonConvert.DeserializeObject<IEnumerable<Goal>>(await response.Content.ReadAsStringAsync());
-        Assert.NotEmpty(childGoals); // Ensure it returns child goals
+        Assert.NotEmpty(childGoals);
     }
 
     [Fact]
     public async Task GetGoal_ReturnsGoal_WhenGoalExists()
     {
         // Arrange
-        int existingGoalId = 10; // Assuming this goal exists
+        int existingGoalId = 10;
 
         // Act
         var response = await ApiHttpClient.GetAsync($"/api/goals/{existingGoalId}");
@@ -108,7 +108,7 @@ public class GoalsControllerIntegrationTests : ApiFixture
         // Assert
         response.EnsureSuccessStatusCode();
         var goal = JsonConvert.DeserializeObject<Goal>(await response.Content.ReadAsStringAsync());
-        Assert.Equal(existingGoalId, goal.Id); // Ensure it returns the correct goal
+        Assert.Equal(existingGoalId, goal.Id);
     }
 
     [Fact]
@@ -135,11 +135,6 @@ public class GoalsControllerIntegrationTests : ApiFixture
     [Fact]
     public async Task Login_ValidUser_ReturnsToken()
     {
-        // Arrange
-        // First, register or ensure a user exists in the test database...
-        // ...
-
-        // Now, create login model for the existing user
         var loginModel = new LoginModel
         {
             Username = "Admin",
