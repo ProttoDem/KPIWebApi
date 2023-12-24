@@ -8,6 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using Specifications;
 using TaskWebApiLab.UnitOfWork;
 using System.Net;
+using System.Security.Claims;
 
 namespace TaskWebApiLab.Controllers
 {
@@ -19,13 +20,13 @@ namespace TaskWebApiLab.Controllers
         //private readonly ApplicationDbContext _context;
         private readonly UserManager<IdentityUser> _userManager;
         private readonly IGoalRepository _goalRepository;
+        private readonly string _userName;
 
-        public GoalsController(UserManager<IdentityUser> userManager, IGoalRepository goalRepository)
+        public GoalsController(UserManager<IdentityUser> userManager, IHttpContextAccessor httpContextAccessor, IGoalRepository goalRepository)
         {
-            //_context = context;
+            _userName = httpContextAccessor.HttpContext.User.Identity.Name;
             this._goalRepository = goalRepository;
             _userManager = userManager;
-            //SetUser();
         }
 
         // GET: api/Goals
@@ -205,9 +206,8 @@ namespace TaskWebApiLab.Controllers
         public async Task<ActionResult<GoalModel>> PostGoal([FromBody]GoalModel goal)
         {
             await SetUser();
-            var user = await _userManager.FindByNameAsync(User.Identity.Name);
+            var user = await _userManager.FindByNameAsync(_userName);
             var userId = user.Id;
-            //var user = await _context.Users.Where(x => x.UserName == User.Identity.Name).SingleAsync();
 
             var goalData = new Goal
             {
@@ -244,7 +244,8 @@ namespace TaskWebApiLab.Controllers
             return NoContent();
         }
 
-        private bool GoalExists(int id)
+        [NonAction]
+        public bool GoalExists(int id)
         {
             if (_goalRepository.GetGoalByID(id) == null)
             {
@@ -255,7 +256,7 @@ namespace TaskWebApiLab.Controllers
 
         private async Task SetUser()
         {
-            var user = await _userManager.FindByNameAsync(User.Identity.Name);
+            var user = await _userManager.FindByNameAsync(_userName);
             var userId = user.Id;
             _goalRepository.SetCurrentUser(userId);
         }

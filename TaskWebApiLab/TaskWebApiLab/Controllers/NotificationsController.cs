@@ -17,9 +17,11 @@ namespace TaskWebApiLab.Controllers
     {
         private readonly UserManager<IdentityUser> _userManager;
         private readonly IGoalRepository _goalRepository;
+        private readonly string _userName;
 
-        public NotificationsController(UserManager<IdentityUser> userManager, IGoalRepository goalRepository)
+        public NotificationsController( UserManager<IdentityUser> userManager, IHttpContextAccessor httpContextAccessor, IGoalRepository goalRepository)
         {
+            _userName = httpContextAccessor.HttpContext.User.Identity.Name;
             _userManager = userManager;
             _goalRepository = goalRepository;
         }
@@ -46,10 +48,10 @@ namespace TaskWebApiLab.Controllers
             return notifications;
         }
 
-
+        [NonAction]
         private async Task SetUser()
         {
-            var user = await _userManager.FindByNameAsync(User.Identity.Name);
+            var user = await _userManager.FindByNameAsync(_userName);
             var userId = user.Id;
             _goalRepository.SetCurrentUser(userId);
         }
