@@ -113,7 +113,7 @@ namespace TaskWebApiLab.Controllers
                 return StatusCode((int)HttpStatusCode.NotFound);
             }
 
-            return StatusCode((int)HttpStatusCode.OK, new { totalCount = goals.Count, goals });
+            return StatusCode((int)HttpStatusCode.OK, new { goals });
         }
         
         // GET: api/Goals/goals-by-status
@@ -136,7 +136,7 @@ namespace TaskWebApiLab.Controllers
                 return StatusCode((int)HttpStatusCode.NotFound);
             }
 
-            return StatusCode((int)HttpStatusCode.OK, new { totalCount = goals.Count, goals });
+            return StatusCode((int)HttpStatusCode.OK, new { goals });
         }
 
         // GET: api/Goals/5

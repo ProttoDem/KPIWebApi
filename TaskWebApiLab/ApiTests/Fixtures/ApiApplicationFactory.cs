@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace ApiTests
+namespace ApiTests.Fixtures
 {
     public class ApiApplicationFactory : WebApplicationFactory<Program>
     {
@@ -16,7 +16,7 @@ namespace ApiTests
         {
             builder.ConfigureServices(services =>
             {
-//                services.Remove(services.Single(s => s.ServiceType == typeof(ClaimsPrincipal)));
+                //                services.Remove(services.Single(s => s.ServiceType == typeof(ClaimsPrincipal)));
                 services.AddTransient(_ => new ClaimsPrincipal(new ClaimsIdentity(new Claim[] { new Claim(ClaimTypes.Name, "User") })));
             });
 

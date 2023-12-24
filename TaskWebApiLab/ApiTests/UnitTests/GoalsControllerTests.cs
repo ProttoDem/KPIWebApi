@@ -13,12 +13,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
+using Newtonsoft.Json;
 using Specifications;
 using TaskWebApiLab.ApiModels;
 using TaskWebApiLab.Controllers;
 using TaskWebApiLab.UnitOfWork;
 
-namespace ApiTests
+namespace ApiTests.UnitTests
 {
     public class GoalsControllerTests
     {
@@ -90,7 +91,7 @@ namespace ApiTests
 
             // Act
             var result = await controller.GetGoals();
-            
+
             mockUserManager.Verify(um => um.FindByNameAsync(testUserName), Times.Once());
             //Assert.IsType<OkObjectResult>(result.Result);
         }
@@ -103,7 +104,7 @@ namespace ApiTests
 
             // Act
             var result = await controller.GetGoals();
-            
+
             // Assert
             var actionResult = Assert.IsType<ActionResult<IEnumerable<GoalModel>>>(result);
         }
@@ -207,7 +208,25 @@ namespace ApiTests
         {
             // Arrange
             int? testCategoryId = 1;
-            var fakeGoals = new List<Goal> { new Goal { /* Initialize properties */ }, new Goal { /* Initialize properties */ } };
+            var fakeGoals = new List<Goal> { new Goal
+            {
+                CategoryId = 1,
+                ParentTaskId = 0,
+                Title = "Test",
+                Description = "test",
+                CreatedAt = DateTime.Now,
+                DueTime = DateTime.Now.AddDays(1),
+                Status = Status.OnHold
+            }, new Goal
+            {
+                CategoryId = 2,
+                ParentTaskId = 0,
+                Title = "Test2",
+                Description = "test2",
+                CreatedAt = DateTime.Now,
+                DueTime = DateTime.Now.AddDays(1),
+                Status = Status.InProgress
+            } };
             mockGoalRepo.Setup(repo => repo.GetGoals(It.IsAny<ExpressionSpecification<Goal>>())).Returns(fakeGoals);
             var controller = new GoalsController(mockUserManager.Object, mockHttpContextAccessor.Object, mockGoalRepo.Object);
             // Act
@@ -274,10 +293,112 @@ namespace ApiTests
 
             // Assert
             Assert.IsType<NoContentResult>(result);
-            mockGoalRepo.Verify(repo => repo.UpdateGoal(id, goal), Times.Once()); // Verify UpdateGoal was called
-            mockGoalRepo.Verify(repo => repo.Save(), Times.Once()); // Verify Save was called
+            mockGoalRepo.Verify(repo => repo.UpdateGoal(id, goal), Times.Once());
+            mockGoalRepo.Verify(repo => repo.Save(), Times.Once());
         }
 
+        [Fact]
+        public async Task GetGoalsSortByStatus_ReturnsNotFound_WhenNoGoalsMatchCriteria()
+        {
+            // Arrange
+            mockGoalRepo.Setup(repo => repo.GetGoals(It.IsAny<ExpressionSpecification<Goal>>())).Returns(new List<Goal>());
+            var controller = new GoalsController(mockUserManager.Object, mockHttpContextAccessor.Object, mockGoalRepo.Object);
+            // Act
+            var result = await controller.GetGoalsSortByStatus(Status.InProgress, Status.Done);
 
+            // Assert
+            Assert.IsType<StatusCodeResult>(result.Result);
+        }
+
+        [Fact]
+        public async Task GetGoalsSortByStatus_ReturnsFilteredGoals_WhenGoalsExist()
+        {
+            // Arrange
+            var fakeGoals = new List<Goal>
+            {
+                new Goal
+                {
+                    Id = 3,
+                    UserId = "test-id",
+                    CategoryId = 3,
+                    ParentTaskId = 0,
+                    Title = "test",
+                    Description = "test-description",
+                    CreatedAt = DateTime.Now,
+                    DueTime = null,
+                    Status = Status.InProgress
+                },
+                new Goal {  
+                    Id = 2,
+                    UserId = "test-id",
+                    CategoryId = 3,
+                    ParentTaskId = 0,
+                    Title = "test2",
+                    Description = "test-description2",
+                    CreatedAt = DateTime.Now,
+                    DueTime = null,
+                    Status = Status.Done }
+            };
+            mockGoalRepo.Setup(repo => repo.GetGoals(It.IsAny<ExpressionSpecification<Goal>>())).Returns(fakeGoals);
+            var controller = new GoalsController(mockUserManager.Object, mockHttpContextAccessor.Object, mockGoalRepo.Object);
+            
+            var result = await controller.GetGoalsSortByStatus(Status.OnHold, Status.Done);
+
+            var objectResult = Assert.IsType<ObjectResult>(result.Result);
+            Assert.Equal((int)HttpStatusCode.OK, objectResult.StatusCode);
+        }
+
+        [Fact]
+        public async Task GetGoalsSortByStatusCategory_ReturnsNotFound_WhenNoGoalsMatchCriteria()
+        {
+            // Arrange
+            mockGoalRepo.Setup(repo => repo.GetGoals(It.IsAny<ExpressionSpecification<Goal>>())).Returns(new List<Goal>());
+            var controller = new GoalsController(mockUserManager.Object, mockHttpContextAccessor.Object, mockGoalRepo.Object);
+            // Act
+            var result = await controller.GetGoalsSortByStatusCategory(Status.InProgress, Status.Done, 1);
+
+            // Assert
+            var objectResult = Assert.IsType<StatusCodeResult>(result.Result);
+            Assert.Equal((int)HttpStatusCode.NotFound, objectResult.StatusCode);
+        }
+
+        [Fact]
+        public async Task GetGoalsSortByStatusCategory_ReturnsFilteredGoals_WhenGoalsExist()
+        {
+            // Arrange
+            var fakeGoals = new List<Goal>
+            {
+                new Goal
+                {
+                    Id = 3,
+                    UserId = "test-id",
+                    CategoryId = 3,
+                    ParentTaskId = 0,
+                    Title = "test",
+                    Description = "test-description",
+                    CreatedAt = DateTime.Now,
+                    DueTime = null,
+                    Status = Status.InProgress
+                },
+                new Goal {
+                    Id = 2,
+                    UserId = "test-id",
+                    CategoryId = 3,
+                    ParentTaskId = 0,
+                    Title = "test2",
+                    Description = "test-description2",
+                    CreatedAt = DateTime.Now,
+                    DueTime = null,
+                    Status = Status.Done }
+            };
+            mockGoalRepo.Setup(repo => repo.GetGoals(It.IsAny<ExpressionSpecification<Goal>>())).Returns(fakeGoals);
+            var controller = new GoalsController(mockUserManager.Object, mockHttpContextAccessor.Object, mockGoalRepo.Object);
+            // Act
+            var result = await controller.GetGoalsSortByStatusCategory(Status.OnHold, Status.Done, 1); // Example values
+
+            // Assert
+            var objectResult = Assert.IsType<ObjectResult>(result.Result);
+            Assert.Equal((int)HttpStatusCode.OK, objectResult.StatusCode);
+        }
     }
 }

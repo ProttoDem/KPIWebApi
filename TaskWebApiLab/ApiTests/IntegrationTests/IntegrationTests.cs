@@ -8,11 +8,12 @@ using Newtonsoft.Json;
 using System.Text;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Hosting;
-using System.Security.Claims;using ApiTests;
+using System.Security.Claims;
 using Microsoft.Extensions.DependencyInjection;
 using Data.Models;
 using TaskWebApiLab.ApiModels;
 using TaskWebApiLab.Auth;
+using ApiTests.Fixtures;
 
 public class GoalsControllerIntegrationTests : ApiFixture
 {
@@ -115,9 +116,9 @@ public class GoalsControllerIntegrationTests : ApiFixture
     {
         var newUser = new RegisterModel
         {
-            Username = "testUserInTests",
+            Username = "testUserInTests1234",
             Email = "adminuser@example.com",
-            Password = "TestPassword_123"
+            Password = "TestPassword_1234"
         };
         var content = new StringContent(JsonConvert.SerializeObject(newUser), Encoding.UTF8, "application/json");
 
@@ -162,9 +163,9 @@ public class GoalsControllerIntegrationTests : ApiFixture
     {
         var newAdmin = new RegisterModel
         {
-            Username = "testAdmin",
+            Username = "testAdmin1234",
             Email = "testuser@example.com",
-            Password = "TestPassword_123"
+            Password = "TestPassword_1234"
         };
         var content = new StringContent(JsonConvert.SerializeObject(newAdmin), Encoding.UTF8, "application/json");
 
