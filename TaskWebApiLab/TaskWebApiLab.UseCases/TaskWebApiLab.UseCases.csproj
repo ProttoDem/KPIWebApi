@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Ardalis.Result" Version="7.2.0" />
+    <PackageReference Include="Ardalis.SharedKernel" Version="1.4.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="8.0.0" />
+    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="7.0.3" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TaskWebApiLab.Core\TaskWebApiLab.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Goals\List\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Microsoft.Extensions.Identity.Stores">
+      <HintPath>..\..\..\Program Files\dotnet\shared\Microsoft.AspNetCore.App\8.0.0\Microsoft.Extensions.Identity.Stores.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

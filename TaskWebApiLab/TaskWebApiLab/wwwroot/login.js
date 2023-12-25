@@ -15,7 +15,7 @@ document.getElementById('loginForm').onsubmit = async function (event) {
     const password = document.getElementById('password').value;
 
     try {
-        const response = await fetch('https://localhost:7127/api/Authenticate/login', {
+        const response = await fetch('https://localhost:7127/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

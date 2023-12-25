@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Data.Models
 {
-    public class Goal
+    /*public class Goal
     {
         public int Id { get; set; }
         public string UserId { get; set; }
@@ -18,12 +18,5 @@ namespace Data.Models
         public DateTime? DueTime { get; set; }
         public Status Status { get; set; } = Status.OnHold;
 
-    }
-
-    public enum Status
-    {
-        OnHold = 0,
-        InProgress = 1,
-        Done = 2
-    }
+    }*/
 }

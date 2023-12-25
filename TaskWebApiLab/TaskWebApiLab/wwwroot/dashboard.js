@@ -1,7 +1,7 @@
 // dashboard.js
 
 // Base URL of your API
-const apiBaseUrl = '/api/Goals';
+const apiBaseUrl = '/Goals';
 
 
 async function fetchGoals() {
@@ -36,10 +36,10 @@ function displayGoals(goals) {
     // Identify top-level goals and associate child goals
     let topLevelGoals = [];
     g_data.forEach(goal => {
-        if (goal.parentTaskId === 0 || goal.parentTaskId === null) {
+        if (goal.parentGoalId === 0 || goal.parentGoalId === null) {
             topLevelGoals.push(goalsMap.get(goal.id));
-        } else if (goalsMap.has(goal.parentTaskId)) {
-            goalsMap.get(goal.parentTaskId).children.push(goalsMap.get(goal.id));
+        } else if (goalsMap.has(goal.parentGoalId)) {
+            goalsMap.get(goal.parentGoalId).children.push(goalsMap.get(goal.id));
         }
     });
 
@@ -149,7 +149,7 @@ async function submitNewGoal() {
     // Constructing the request body from form values
     const newGoal = {
         categoryId: document.getElementById('categoryId').value,
-        parentTaskId: document.getElementById('parentTaskId').value || null,
+        parentGoalId: document.getElementById('parentGoalId').value || null,
         title: document.getElementById('title').value,
         description: document.getElementById('description').value,
         dueTime: document.getElementById('dueTime').value || null,
@@ -241,7 +241,7 @@ async function fetchNotifications() {
 }
 
 async function fetchGoalDetails(goalId) {
-    const url = `/api/Goals/${goalId}`;
+    const url = `/Goals/${goalId}`;
     try {
         const response = await fetch(url, {
             method: 'GET',
